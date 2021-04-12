@@ -1,5 +1,8 @@
 import requests
 import datetime
+from functools import partial
+import numpy as np
+
 
 class Node:
   def __init__(self, origin, destination, start_time , end_time, id):
@@ -40,7 +43,7 @@ def shareable_first(Node1, Node2, delta):
             return False
           if pt_i + tt_oi_oj + tt_oj_di + tt_di_dj >= at_j + datetime_delta:
             return True
-    except Exception, e:
+    except Exception as e:
       print(e.args)
   return False
 
@@ -69,7 +72,7 @@ def shareable_last(Node1, Node2, delta):
             return False
           if pt_i + tt_oi_oj + tt_oj_dj + tt_dj_di >= at_j + datetime_delta:
             return True
-    except Exception, e:
+    except Exception as e:
       print(e.args)
   return False
 
@@ -86,3 +89,42 @@ def shareable_super(Node1,Node2,delta):
     return True
   else: 
     return False
+
+def last_consider_factory(df, delta):
+  return partial(last_consider, df, delta)
+
+def last_consider(df_sample, delta, row):
+  n = len(df_sample)
+  datetime_delta = datetime.timedelta(minutes=delta)
+  st = row[' pickup_datetime']
+  # print(st)
+  # print(df_sample[' pickup_datetime'] <= st + datetime_delta * 2)
+  last = np.argmin(df_sample[' pickup_datetime'] <= st + datetime_delta * 2)
+  if last == 0:
+    last = n
+  return last
+
+def check_shareability_factory(df, delta):
+  def output_shareable_edges(potential_ranges_list):
+    """ output a list of shareable edges
+    """
+    shareable_list = []
+    for (i,j) in tqdm(potential_ranges_list):
+      o1 = (df.iloc[i][' pickup_longitude'],df.iloc[0][' pickup_latitude'])
+      d1 = (df.iloc[i][' dropoff_longitude'],df.iloc[0][' dropoff_latitude'])
+      s1 = df.iloc[i][' pickup_datetime']
+      t1 = df.iloc[i][' dropoff_datetime']
+
+      n1 = Node(o1, d1, s1, t1, i)
+
+      o2 = (df.iloc[j][' pickup_longitude'],df.iloc[1][' pickup_latitude'])
+      d2 = (df.iloc[j][' dropoff_longitude'],df.iloc[1][' dropoff_latitude'])
+      s2 = df.iloc[j][' pickup_datetime']
+      t2 = df.iloc[j][' dropoff_datetime']
+
+      n2 = Node(o2, d2, s2, t2, j)
+      if shareable_super(n1, n2, delta):
+        shareable_list.append((i,j))
+    return shareable_list
+  
+  return output_shareable_edges
