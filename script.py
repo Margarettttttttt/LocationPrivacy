@@ -28,8 +28,8 @@ def main():
         last_series = df_1d.apply(last_consider, axis = 1)
         edges_series = utils.potential_ranges(last_series)
         output_shareable_edges = sh.output_shareable_edges_factory(df_2d, delta)
-        for series in utils.dataloader_series(edges_series, buck_size = 240)
-            split_series = utils.split_edges_series(series.iloc,8)
+        for series in utils.dataloader_series(edges_series, buck_size = 240):
+            split_series = utils.split_edges_series(series,8)
             pool = mp.Pool()
             results = pool.map(output_shareable_edges, split_series)
             pool.close()
