@@ -31,7 +31,14 @@ def shareable_first(Node1, Node2, delta):
       print('Exception.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1]) + ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
       return False
     if x is not None:
-      tt_oi_oj = datetime.timedelta(seconds = x.json()['durations'][0][1]) 
+      try:
+        s = x.json()['durations'][0][1]
+      except Exception as e:
+        print(e)
+        print(e.args)
+        print('JSON Exception.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1]) + ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
+        return False
+      tt_oi_oj = datetime.timedelta(seconds = s) 
     else:
       print('None object.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1]) + ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
       return False
@@ -45,7 +52,14 @@ def shareable_first(Node1, Node2, delta):
         print('Exception.  Node: ', str(Node2.origin[0]) + ',' + str(Node2.origin[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]))
         return False  
       if y is not None:
-        tt_oj_di = datetime.timedelta(seconds = y.json()['durations'][0][1])
+        try:
+          s = y.json()['durations'][0][1]
+        except Exception as e:
+          print(e)
+          print(e.args)
+          print('JSON Exception.  Node: ', str(Node2.origin[0]) + ',' + str(Node2.origin[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]))
+          return False  
+        tt_oj_di = datetime.timedelta(seconds = s)
       else:
         print('None object.  Node: ', (Node1.id, Node2.id), str(Node2.origin[0]) + ',' + str(Node2.origin[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]))
         return False
@@ -59,7 +73,14 @@ def shareable_first(Node1, Node2, delta):
           print('Exception.  Node: ', str(Node1.dest[0]) + ',' + str(Node1.dest[1]) + ";" + str(Node2.dest[0]) + ',' + str(Node2.dest[1]))
           return False
         if z is not None:
-          tt_di_dj = datetime.timedelta(seconds = z.json()['durations'][0][1])
+          try:
+            s = z.json()['durations'][0][1]
+          except Exception as e:
+            print(e)
+            print(e.args)
+            print('JSON Exception.  Node: ', str(Node1.dest[0]) + ',' + str(Node1.dest[1]) + ";" + str(Node2.dest[0]) + ',' + str(Node2.dest[1]))
+            return False
+          tt_di_dj = datetime.timedelta(seconds = s)
         else: 
           print('None object.  Node: ', (Node1.id, Node2.id), str(Node1.dest[0]) + ',' + str(Node1.dest[1]) + ";" + str(Node2.dest[0]) + ',' + str(Node2.dest[1]))
           return False
@@ -87,7 +108,14 @@ def shareable_last(Node1, Node2, delta):
       print('Exception.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1])+ ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
       return False
     if x is not None:
-      tt_oi_oj = datetime.timedelta(seconds = x.json()['durations'][0][1])
+      try:
+        s = x.json()['durations'][0][1]
+      except Exception as e:
+        print(e)
+        print(e.args)
+        print('JSON Exception.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1])+ ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
+        return False
+      tt_oi_oj = datetime.timedelta(seconds = s)
     else:
       print('Return None.  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1])+ ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
       return False
@@ -103,7 +131,14 @@ def shareable_last(Node1, Node2, delta):
           print('Exception.  Node: ', (Node1.id, Node2.id), str(Node2.dest[0]) + ',' + str(Node2.dest[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]) )
           return False
         if z is not None:
-          tt_dj_di = datetime.timedelta(seconds = z.json()['durations'][0][1])
+          try:
+            s = z.json()['durations'][0][1]
+          except Exception as e:
+            print(e)
+            print(e.args)
+            print('JSON Exception.  Node: ', (Node1.id, Node2.id), str(Node2.dest[0]) + ',' + str(Node2.dest[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]) )
+            return False  
+          tt_dj_di = datetime.timedelta(seconds = s)
         else:
           print('Return None.  Node: ', (Node1.id, Node2.id), str(Node2.dest[0]) + ',' + str(Node2.dest[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]) )
           return False

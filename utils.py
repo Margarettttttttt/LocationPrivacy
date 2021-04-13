@@ -22,3 +22,9 @@ def potential_ranges(last):
 def split_edges_series(edges_series, split_num):
     split = np.array_split(edges_series, split_num)
     return split
+
+def dataloader_series(series, buck_size = 10):
+    n = len(df)
+    num_buck = int(n * 1.0 / buck_size + 1) 
+    split = np.array_split(series, num_buck)
+    return split
