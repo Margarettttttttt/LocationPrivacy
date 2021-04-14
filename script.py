@@ -28,9 +28,9 @@ def main():
         last_series = df_1d.apply(last_consider, axis = 1)
         edges_series = utils.potential_ranges(last_series)
         output_shareable_edges = sh.output_shareable_edges_factory(df_2d, delta)
-        for series in utils.dataloader_series(edges_series, buck_size = 240):
-            split_series = utils.split_edges_series(series,4)
-            pool = mp.Pool(4)
+        for series in utils.dataloader_series(edges_series, buck_size = 30):
+            split_series = utils.split_edges_series(series,3)
+            pool = mp.Pool(3)
             results = pool.map(output_shareable_edges, split_series)
             pool.close()
             pool.join()
@@ -39,6 +39,7 @@ def main():
                 with open('test.txt','a') as f:
                     for ele in out:
                         f.write(str(ele)+'\n')
+                    print('Update: wrote down some edges')
 
 if __name__ == "__main__":
     main()
