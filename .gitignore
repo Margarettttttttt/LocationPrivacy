@@ -6,4 +6,6 @@ edges_old.txt
 ShareabilityExploration.ipynb
 Untitled.ipynb
 config.py
+obuscated_trips.csv
+edges_gmaps.txt
 __pycache__/

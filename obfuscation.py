@@ -3,7 +3,7 @@ import googlemaps
 import config
 import pandas as pd
 
-gmaps = googlemaps.Client(key=config.API_key)
+gmaps = googlemaps.Client(key=config.API_key_new)
 fake = Faker()
 
 def obfuscated_coord(lat, lng, delta):
@@ -16,7 +16,7 @@ def obfuscated_coord(lat, lng, delta):
     r = 0.00083 * delta * 0.6
     valid_fake = False
     tries = 0
-    while tries < 30:
+    while tries < 10:
         lat_fake = fake.coordinate(center=str(lat), radius = r)
         lng_fake = fake.coordinate(center=str(lng), radius = r)
         x = gmaps.distance_matrix((lat,lng), (lat_fake,lng_fake), mode='walking')
@@ -25,10 +25,13 @@ def obfuscated_coord(lat, lng, delta):
             if dur < delta * 60:
                 print(tries)
                 return pd.Series([lat_fake, lng_fake, dur])
+            else:
+                tries += 1
+                continue
         except Exception as e:
             print(e)
             print(e.args)
-            # print('Request Exception.  Node: ', str(Node1.dest[0]) + ',' + str(Node1.dest[1]) + ";" + str(Node2.dest[0]) + ',' + str(Node2.dest[1]))
+            print('Request Exception.  Node: '+ str(lat) + ',' + str(lng) + '---->' + str(lat_fake)+str(lng_fake))
             tries += 1
             continue
     return pd.Series([0.00,0.00, 0]) 
@@ -41,8 +44,9 @@ def main():
        ' dropoff_latitude'], nrows=1000000)
     df[' pickup_datetime'] = pd.to_datetime(df[' pickup_datetime'])
     df[' dropoff_datetime'] = pd.to_datetime(df[' dropoff_datetime'])
-    df = df[df[' pickup_datetime']<'2010-01-01 01:00:00']
-    # df = df.iloc[:100]
+    df = df[df[' pickup_datetime']<'2010-01-01 00:15:00']
+    # df = df.iloc[:996]
+    print(len(df))
     # df_2d = df[df[' pickup_datetime']<'2010-01-01 01:10:00']
     delta = 3
     obfuscated_pickup = df.apply(lambda x : obfuscated_coord(x.loc[' pickup_latitude'],x.loc[' pickup_longitude'],delta ), axis=1)
@@ -50,7 +54,7 @@ def main():
     obfuscated_pickup.columns = [' fake_pickup_latitude',' fake_pickup_longitude', 'pickup_walking_time']
     obfuscated_dropoff.columns = [' fake_dropoff_latitude',' fake_dropoff_longitude', 'dropoff_walking_time']
 
-    df = df.join(obfuscased_pickup).join(obfuscased_dropoff)
+    df = df.join(obfuscated_pickup).join(obfuscated_dropoff)
     df.to_csv('obfuscated_trips.csv')
     print(df.head(2))
 

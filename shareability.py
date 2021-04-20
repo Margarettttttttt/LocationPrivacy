@@ -232,7 +232,7 @@ def shareable_first_gmap(Node1, Node2, delta):
   st_j = Node2.st
   at_i = Node1.at
   at_j = Node2.at
-  gmaps = googlemaps.Client(key=config.API_key)
+  gmaps = googlemaps.Client(key=config.API_key_new)
   datetime_delta = datetime.timedelta(minutes=delta)
   for d in range(delta+1):
     c = datetime.timedelta(minutes=d)
@@ -251,7 +251,7 @@ def shareable_first_gmap(Node1, Node2, delta):
         print(e)
         print(e.args)
         print('Query Exception (zero result).  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1]) + ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
-        print(x)
+        # print(x)
         # raise e
         return False
       if s is not None:
@@ -277,7 +277,7 @@ def shareable_first_gmap(Node1, Node2, delta):
           print(e)
           print(e.args)
           print('Query Exception (zero result).  Node: ', str(Node2.origin[0]) + ',' + str(Node2.origin[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]))
-          print(y)
+          # print(y)
           # raise e
           return False  
         if s is not None:
@@ -321,7 +321,7 @@ def shareable_first_gmap(Node1, Node2, delta):
   return False
 
 def shareable_last_gmap(Node1, Node2, delta):
-  gmaps = googlemaps.Client(key=config.API_key)
+  gmaps = googlemaps.Client(key=config.API_key_new)
   st_i = Node1.st 
   st_j = Node2.st
   at_i = Node1.at
@@ -344,7 +344,7 @@ def shareable_last_gmap(Node1, Node2, delta):
         print(e)
         print(e.args)
         print('Query Exception (zero result).  Node: ', (Node1.id, Node2.id), str(Node1.origin[0]) + ',' + str(Node1.origin[1])+ ";" + str(Node2.origin[0]) + ',' + str(Node2.origin[1]))
-        print(x) 
+        # print(x) 
         # raise e
         return False
       if s is not None:
@@ -364,7 +364,7 @@ def shareable_last_gmap(Node1, Node2, delta):
           print(e)
           print(e.args)
           print('Exception.  Node: ', (Node1.id, Node2.id), str(Node2.dest[0]) + ',' + str(Node2.dest[1]) + ";" + str(Node1.dest[0]) + ',' + str(Node1.dest[1]) )
-          print(z)
+          # print(z)
           return False
         if z is not None:
           try:
