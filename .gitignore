@@ -8,4 +8,5 @@ Untitled.ipynb
 config.py
 obuscated_trips.csv
 edges_gmaps.txt
+obfuscated_trips_duration_included.csv
 __pycache__/

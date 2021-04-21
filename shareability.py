@@ -185,20 +185,29 @@ def shareable_super(Node1,Node2,delta):
   else: 
     return False
 
-def last_consider_factory(df, delta):
-  return partial(last_consider, df, delta)
+def last_consider_factory(df, delta, obfuscated=False):
+  return partial(last_consider, df, delta, obfuscated=obfuscated)
 
-def last_consider(df, delta, row):
+def last_consider(df, delta, row, obfuscated=False):
   n = len(df)
   datetime_delta = datetime.timedelta(minutes=delta)
-  st = row[' pickup_datetime']
-  last = np.argmin(df[' pickup_datetime'] <= st + datetime_delta * 2)
+  if obfuscated:
+    st = row['fake_pickup_datetime']
+    last = np.argmin(df['fake_pickup_datetime'] <= st + datetime_delta * 2)
+  else:
+    st  = row[' pickup_datetime']
+    last = np.argmin(df[' pickup_datetime'] <= st + datetime_delta * 2)
   if last == 0:
     last = n
   return last
 
-def output_shareable_edges_factory(df, delta, gmap):
-  return partial(output_shareable_edges, df, delta, gmap)
+def output_shareable_edges_factory(df, delta, gmap, obfuscated = False):
+  if not obfuscated:
+    return partial(output_shareable_edges, df, delta, gmap)
+  else:
+    return partial(output_shareable_edges_obfuscated, df, delta, gmap)
+  else:
+
 
 def output_shareable_edges(df, delta, gmap, potential_ranges_list):
 
@@ -227,7 +236,33 @@ def output_shareable_edges(df, delta, gmap, potential_ranges_list):
       shareable_list.append((i,j))
   return shareable_list
 
-def shareable_first_gmap(Node1, Node2, delta):
+def output_shareable_edges_obfuscated(df, delta, gmap, potential_ranges_list):
+
+  """ output a list of shareable edges
+  """
+  shareable_list = []
+  for (i,j) in tqdm(potential_ranges_list):
+    o1 = (df.loc[i][' fake_pickup_longitude'],df.loc[i][' fake_pickup_latitude'])
+    d1 = (df.loc[i][' fake_dropoff_longitude'],df.loc[i][' fake_dropoff_latitude'])
+    s1 = df.loc[i]['fake_pickup_datetime']
+    t1 = df.loc[i]['fake_dropoff_datetime']
+
+    n1 = Node(o1, d1, s1, t1, i)
+
+    o2 = (df.loc[j][' fake_pickup_longitude'],df.loc[j][' fake_pickup_latitude'])
+    d2 = (df.loc[j][' fake_dropoff_longitude'],df.loc[j][' fake_dropoff_latitude'])
+    s2 = df.loc[j]['fake_pickup_datetime']
+    t2 = df.loc[j]['fake_dropoff_datetime']
+
+    n2 = Node(o2, d2, s2, t2, j)
+    if gmap:
+      canshare = shareable_super_gmap(n1, n2, delta, obfuscated=True)
+    else:
+      canshare = shareable_super(n1, n2, delta)
+    if canshare:
+      shareable_list.append((i,j))
+  return shareable_list
+def shareable_first_gmap(Node1, Node2, delta, obfuscated = False):
   st_i = Node1.st 
   st_j = Node2.st
   at_i = Node1.at
@@ -316,11 +351,11 @@ def shareable_first_gmap(Node1, Node2, delta):
         
         if pt_i + tt_oi_oj + tt_oj_di + tt_di_dj >= at_j + datetime_delta:
           return True
-    # except Exception as e:
-      # print(e.args)
+    if obfuscated:
+      return False
   return False
 
-def shareable_last_gmap(Node1, Node2, delta):
+def shareable_last_gmap(Node1, Node2, delta, obfuscated = False):
   gmaps = googlemaps.Client(key=config.API_key_new)
   st_i = Node1.st 
   st_j = Node2.st
@@ -385,17 +420,19 @@ def shareable_last_gmap(Node1, Node2, delta):
         
         if pt_i + tt_oi_oj + tt_oj_dj + tt_dj_di >= at_j + datetime_delta:
           return True
+    if obfuscated:
+      return False
   return False
 
-def shareable_super_gmap(Node1,Node2,delta):
+def shareable_super_gmap(Node1,Node2,delta, obfuscated = False):
   ## check all 4 routes
-  if shareable_first_gmap(Node1,Node2,delta):
+  if shareable_first_gmap(Node1,Node2,delta, obfuscated = obfuscated):
     return True
-  elif shareable_first_gmap(Node2,Node1,delta):
+  elif shareable_first_gmap(Node2,Node1,delta, obfuscated = obfuscated):
     return True
-  elif shareable_last_gmap(Node1,Node2,delta):
+  elif shareable_last_gmap(Node1,Node2,delta, obfuscated = obfuscated):
     return True
-  elif shareable_last_gmap(Node2,Node1,delta):
+  elif shareable_last_gmap(Node2,Node1,delta, obfuscated = obfuscated):
     return True
   else: 
     return False
