@@ -2,7 +2,7 @@ from faker import Faker
 import googlemaps 
 import config
 import pandas as pd
-
+import datetime
 gmaps = googlemaps.Client(key=config.API_key_new)
 fake = Faker()
 
@@ -36,7 +36,7 @@ def obfuscated_coord(lat, lng, delta):
             continue
     return pd.Series([0.00,0.00, 0]) 
 
-def main():
+def obfuscation():
     root = ''
     df = pd.read_csv(root + 'trip_data_1.csv',usecols=['medallion', ' pickup_datetime', ' dropoff_datetime',
        ' passenger_count', ' trip_time_in_secs', ' trip_distance',
@@ -58,5 +58,37 @@ def main():
     df.to_csv('obfuscated_trips.csv')
     print(df.head(2))
 
+def obfuscated_duration():
+    '''
+    Recalculate the trip time
+    '''
+    root = ''
+    df = pd.read_csv(root + 'obfuscated_trips.csv', usecols=['medallion', ' pickup_datetime', ' dropoff_datetime',
+       ' passenger_count', ' trip_time_in_secs', ' trip_distance',
+       ' fake_pickup_latitude',' fake_pickup_longitude', 'pickup_walking_time', ' fake_dropoff_latitude',
+       ' fake_dropoff_longitude', 'dropoff_walking_time'], nrows=100000)
+    df[' pickup_datetime'] = pd.to_datetime(df[' pickup_datetime'])
+    # df[' dropoff_datetime'] = pd.to_datetime(df[' dropoff_datetime'])
+    df = df[df[' pickup_datetime']<'2010-01-01 00:15:00']
+    df['pickup_walking_time'] = pd.to_timedelta(df['pickup_walking_time'], unit='s')
+    # df['dropoff_walking_time'] = pd.to_timedelta(df['dropoff_walking_time'], unit='s')
+    df['fake_pickup_datetime'] = df.apply(lambda x: x[' pickup_datetime'] + x['pickup_walking_time'], axis=1)
+    df[' fake_trip_time'] = df.apply(lambda x : compute_duration(x[' fake_pickup_latitude'],x[' fake_pickup_longitude'],x[' fake_dropoff_latitude'], x[' fake_dropoff_longitude']) , axis=1)
+    return df
+
+
+def compute_duration(slat,slng, dlat, dlng, mode='driving'):
+    
+    x = gmaps.distance_matrix((slat,slng), (dlat,dlng), mode=mode)
+    try:
+        dur = x['rows'][0]['elements'][0]['duration']['value']
+        return datetime.timedelta(seconds = dur)
+    except Exception as e:
+        print(e)
+        print(e.args)
+        print('Request Exception.  Node: '+ str(slat) + ',' + str(slng) + '---->' + str(slat)+str(dlng))
+        return None
+
 if __name__ == "__main__":
-    main()
+    df = obfuscated_duration()
+    df.to_csv('obfuscated_trips_duration_included.csv')
