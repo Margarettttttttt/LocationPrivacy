@@ -206,7 +206,7 @@ def output_shareable_edges_factory(df, delta, gmap, obfuscated = False):
     return partial(output_shareable_edges, df, delta, gmap)
   else:
     return partial(output_shareable_edges_obfuscated, df, delta, gmap)
-  else:
+  
 
 
 def output_shareable_edges(df, delta, gmap, potential_ranges_list):
@@ -255,10 +255,13 @@ def output_shareable_edges_obfuscated(df, delta, gmap, potential_ranges_list):
     t2 = df.loc[j]['fake_dropoff_datetime']
 
     n2 = Node(o2, d2, s2, t2, j)
-    if gmap:
-      canshare = shareable_super_gmap(n1, n2, delta, obfuscated=True)
+    if t1 and t2:
+      if gmap:
+        canshare = shareable_super_gmap(n1, n2, delta, obfuscated=True)
+      else:
+        canshare = shareable_super(n1, n2, delta)
     else:
-      canshare = shareable_super(n1, n2, delta)
+      canshare = False
     if canshare:
       shareable_list.append((i,j))
   return shareable_list
